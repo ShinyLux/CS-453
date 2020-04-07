@@ -16,120 +16,205 @@ import visitor.*;
  */
 public class TypeCheckSimp extends GJDepthFirst<MyType,HashMap<String,String>> {
 
-    public MyType visit(Goal n, HashMap<String,String> arg) {
-	System.out.println("Visiting Goal");
-	MyType ret = n.f0.accept(this,arg);
-	System.out.println("Done Visiting Goal");
+	public MyType visit(Goal n, HashMap<String, String> arg) {
+		System.out.println("Visiting Goal");
+		MyType ret = n.f0.accept(this, arg);
+		System.out.println("Done Visiting Goal");
 
-	return ret;
-    }
+		return ret;
+	}
 
-    public MyType visit(MainClass n, HashMap<String,String> arg) {
-	System.out.println("Visiting Main");
-	MyType ret = n.f15.accept(this, arg); // Statement list
-	System.out.println("Done Visiting Main");
+	public MyType visit(MainClass n, HashMap<String, String> arg) {
+		System.out.println("Visiting Main");
+		MyType ret = n.f15.accept(this, arg); // Statement list
+		System.out.println("Done Visiting Main");
 
-	return ret;
-    }
+		return ret;
+	}
 
-    public MyType visit(Statement n, HashMap<String,String> arg) {
-	System.out.println("Visiting statement");
-	MyType ret = n.f0.accept(this, arg);
-	System.out.println("Done Visiting statement");
-	// Type inference rule: n typechecks if its children typechecks
-	if (ret != null && ret.type_array.elementAt(0).compareTo("OK") == 0)
-	    return ret;
-	return null;
-    }
-
-
-    /**
-     * f0 -> Identifier()
-     * f1 -> "="
-     * f2 -> Expression()
-     * f3 -> ";"
-     */
-    public MyType visit(AssignmentStatement n, HashMap<String,String> argu) {
-	System.out.println("Visiting AssignStatement");
-	// get the type of the lhs:
-	MyType lhs = n.f0.accept(this, argu);
-	// get the type of the rhs:
-	MyType rhs = n.f2.accept(this, argu);
-	System.out.println("Done Visiting AssignStatement");
-
-	// Type inference rule for assignment: type(id) = type(expr)
-	if (lhs != null && rhs != null && lhs.checkIdentical(rhs))
-	    return new MyType("OK");
-	return null;
-    }
+	public MyType visit(Statement n, HashMap<String, String> arg) {
+		System.out.println("Visiting statement");
+		MyType ret = n.f0.accept(this, arg);
+		System.out.println("Done Visiting statement");
+		// Type inference rule: n typechecks if its children typechecks
+		if (ret != null && ret.type_array.elementAt(0).compareTo("OK") == 0)
+			return ret;
+		return null;
+	}
 
 
-    /**
-     * f0 -> AndExpression()
-     *       | CompareExpression()
-     *       | PlusExpression()
-     *       | MinusExpression()
-     *       | TimesExpression()
-     *       | ArrayLookup()
-     *       | ArrayLength()
-     *       | MessageSend()
-     *       | PrimaryExpression()
-     */
-    public MyType visit(Expression n, HashMap<String,String> argu) {
-	return n.f0.accept(this, argu);
-    }
+	/**
+	 * f0 -> Identifier()
+	 * f1 -> "="
+	 * f2 -> Expression()
+	 * f3 -> ";"
+	 */
+	public MyType visit(AssignmentStatement n, HashMap<String, String> argu) {
+		System.out.println("Visiting AssignStatement");
+		// get the type of the lhs:
+		MyType lhs = n.f0.accept(this, argu);
+		// get the type of the rhs:
+		MyType rhs = n.f2.accept(this, argu);
+		System.out.println("Done Visiting AssignStatement");
+
+		// Type inference rule for assignment: type(id) = type(expr)
+		if (lhs != null && rhs != null && lhs.checkIdentical(rhs))
+			return new MyType("OK");
+		return null;
+	}
 
 
-    /**
-     * f0 -> IntegerLiteral()
-     *       | TrueLiteral()
-     *       | FalseLiteral()
-     *       | Identifier()
-     *       | ThisExpression()
-     *       | ArrayAllocationExpression()
-     *       | AllocationExpression()
-     *       | NotExpression()
-     *       | BracketExpression()
-     */
-    public MyType visit(PrimaryExpression n, HashMap<String,String> argu) {
-	return n.f0.accept(this, argu);
-    }
-
-    /**
-     * f0 -> "("
-     * f1 -> Expression()
-     * f2 -> ")"
-     */
-    public MyType visit(BracketExpression n, HashMap<String,String> argu) {
-	return n.f1.accept(this, argu);
-    }
+	/**
+	 * f0 -> AndExpression()
+	 * | CompareExpression()
+	 * | PlusExpression()
+	 * | MinusExpression()
+	 * | TimesExpression()
+	 * | ArrayLookup()
+	 * | ArrayLength()
+	 * | MessageSend()
+	 * | PrimaryExpression()
+	 */
+	public MyType visit(Expression n, HashMap<String, String> argu) {
+		return n.f0.accept(this, argu);
+	}
 
 
-    /**
-     * f0 -> PrimaryExpression()
-     * f1 -> "+"
-     * f2 -> PrimaryExpression()
-     */
-    public MyType visit(PlusExpression n, HashMap<String,String> argu) {
-	System.out.println("Visiting PlusExpression");
+	/**
+	 * f0 -> IntegerLiteral()
+	 * | TrueLiteral()
+	 * | FalseLiteral()
+	 * | Identifier()
+	 * | ThisExpression()
+	 * | ArrayAllocationExpression()
+	 * | AllocationExpression()
+	 * | NotExpression()
+	 * | BracketExpression()
+	 */
+	public MyType visit(PrimaryExpression n, HashMap<String, String> argu) {
+		return n.f0.accept(this, argu);
+	}
+
+	/**
+	 * f0 -> "("
+	 * f1 -> Expression()
+	 * f2 -> ")"
+	 */
+	public MyType visit(BracketExpression n, HashMap<String, String> argu) {
+		return n.f1.accept(this, argu);
+	}
+
+	public MyType visit(AndExpression n, HashMap<String,String> argu) {
+		System.out.println("Visiting AndExpression");
+		MyType oper1 = n.f0.accept(this, argu);
+		MyType oper2 = n.f2.accept(this, argu);
+		System.out.println("Done Visiting AndExpression");
+		if (oper1 == null)
+			System.out.println("Warning: oper1 does not typecheck");
+		if (oper2 == null)
+			System.out.println("Warning: oper2 does not typecheck");
+
+		// Type inference rule: oper1:int /\ oper2:int => oper1+oper2:int
+		if (oper1 != null && oper2 != null && oper1.checkIdentical(oper2) && oper1.type_array.size() == 1)
+			return oper1;
+		return null;
+	}
+	public MyType visit(CompareExpression n, HashMap<String,String> argu) {
+		System.out.println("Visiting CompareExpression");
+		MyType oper1 = n.f0.accept(this, argu);
+		MyType oper2 = n.f2.accept(this, argu);
+		System.out.println("Done Visiting CompareExpression");
+		if (oper1 == null)
+			System.out.println("Warning: oper1 does not typecheck");
+		if (oper2 == null)
+			System.out.println("Warning: oper2 does not typecheck");
+
+		// Type inference rule: oper1:int /\ oper2:int => oper1+oper2:int
+		if (oper1 != null && oper2 != null && oper1.checkIdentical(oper2) && oper1.type_array.size() == 1)
+			return oper1;
+		return null;
+	}
+	/**
+	 * f0 -> PrimaryExpression()
+	 * f1 -> "+"
+	 * f2 -> PrimaryExpression()
+	 */
+	public MyType visit(PlusExpression n, HashMap<String, String> argu) {
+		System.out.println("Visiting PlusExpression");
+		MyType oper1 = n.f0.accept(this, argu);
+		MyType oper2 = n.f2.accept(this, argu);
+		System.out.println("Done Visiting PlusExpression");
+		if (oper1 == null)
+			System.out.println("Warning: oper1 does not typecheck");
+		if (oper2 == null)
+			System.out.println("Warning: oper2 does not typecheck");
+
+		// Type inference rule: oper1:int /\ oper2:int => oper1+oper2:int
+		if (oper1 != null && oper2 != null && oper1.checkIdentical(oper2) && oper1.type_array.size() == 1)
+			return oper1;
+		return null;
+	}
+
+	public MyType visit(MinusExpression n, HashMap<String, String> argu){
+	System.out.println("Visiting MinusExpression");
 	MyType oper1 = n.f0.accept(this, argu);
 	MyType oper2 = n.f2.accept(this, argu);
-	System.out.println("Done Visiting PlusExpression");
-	if (oper1 == null)
-	    System.out.println("Warning: oper1 does not typecheck");
-	if (oper2 == null)
-	    System.out.println("Warning: oper2 does not typecheck");
+	System.out.println("Done Visiting MinusExpression");
+	if(oper1 ==null)
+			System.out.println("Warning: oper1 does not typecheck");
+	if(oper2 ==null)
+			System.out.println("Warning: oper2 does not typecheck");
 
-	// Type inference rule: oper1:int /\ oper2:int => oper1+oper2:int
-	if (oper1 != null && oper2 != null && oper1.checkIdentical(oper2) && oper1.type_array.size() == 1)
-	    return oper1;
+	// Type inference rule: oper1:int /\ oper2:int => oper1-oper2:int
+	if(oper1 !=null&&oper2 !=null&&oper1.checkIdentical(oper2)&&oper1.type_array.size()==1)
+			return oper1;
 	return null;
-    }
+}
+
+	public MyType visit(TimesExpression n, HashMap<String,String> argu) {
+		System.out.println("Visiting TimesExpression");
+		MyType oper1 = n.f0.accept(this, argu);
+		MyType oper2 = n.f2.accept(this, argu);
+		System.out.println("Done Visiting TimesExpression");
+		if (oper1 == null)
+			System.out.println("Warning: oper1 does not typecheck");
+		if (oper2 == null)
+			System.out.println("Warning: oper2 does not typecheck");
+
+		// Type inference rule: oper1:int /\ oper2:int => oper1*oper2:int
+		if (oper1 != null && oper2 != null && oper1.checkIdentical(oper2) && oper1.type_array.size() == 1)
+			return oper1;
+		return null;
+	}
+
+	public MyType visit(ArrayLookup n, HashMap<String,String> argu) {
+		System.out.println("Visiting ArrayLookup");
+		MyType oper1 = n.f0.accept(this, argu);
+		MyType oper2 = n.f2.accept(this, argu);
+		System.out.println("Done Visiting ArrayLookup");
+		if (oper1 == null)
+			System.out.println("Warning: oper1 does not typecheck");
+		if (oper2 == null)
+			System.out.println("Warning: oper2 does not typecheck");
+
+		// Type inference rule: oper1:int /\ oper2:int => oper1+oper2:int
+		if (oper1 != null && oper2 != null && oper1.checkIdentical(oper2) && oper1.type_array.size() == 1)
+			return oper1;
+		return null;
+	}
+
+public MyType visit(TrueLiteral n, HashMap<String,String> argu){
+		return true;
+}
+
+public MyType visit(FalseLiteral n, HashMap<String,String> argu){
+		return false;
+}
 
     /**
      * f0 -> <INTEGER_LITERAL>
      */
-    public MyType visit(IntegerLiteral n, HashMap<String,String> argu) {
+  public MyType visit(IntegerLiteral n, HashMap<String,String> argu) {
 	return new MyType("Int");
     }
 
